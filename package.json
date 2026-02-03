@@ -1,0 +1,25 @@
+{
+  "name": "matatechnologies_codechallenge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dominikkyu/MataTechnologies_CodeChallenge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dominikkyu/MataTechnologies_CodeChallenge/issues"
+  },
+  "homepage": "https://github.com/dominikkyu/MataTechnologies_CodeChallenge#readme",
+  "dependencies": {
+    "fastify": "^5.7.4"
+  }
+}
