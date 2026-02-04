@@ -34,22 +34,99 @@ class JsonDataService {
 
 
 
-    /* Read Operations */
+    /* Customer Operations */
     async getAllCustomers() {
         const data = await this.loadData();
         return [...data.customers];
     }
 
+    async getCustomerById(id) {
+        const customers = await this.getAllCustomers();
+        return customers.find(customer => customer.id === id) || null;
+    }
+
+    async addCustomer(customerData) {
+        const data = await this.loadData();
+        const newId = data.customers.length > 0 ?
+            Math.max(...data.customers.map(c => c.id)) + 1 
+            : 1;
+        
+        const newCustomer = {
+            id: newId,
+            ...customerData,
+        };
+        
+        data.customers.push(newCustomer);
+        await this.saveData();
+        
+        return newCustomer;
+    }
+
+
+    /* Product Operations */
     async getAllProducts() {
         const data = await this.loadData();
         return [...data.products];
     }
 
+    async getProductById(id) {
+        const products = await this.getAllProducts();
+        return products.find(product => product.id === id) || null;
+    }
+    
+    async addProduct(productData) {
+        const data = await this.loadData();
+        const newId = data.products.length > 0 ?
+            Math.max(...data.products.map(p => p.id)) + 1 
+            : 1;
+        
+        const newProduct = {
+            id: newId,
+            ...productData,
+        };
+        
+        data.products.push(newProduct);
+        await this.saveData();
+        
+        return newProduct;
+    }
+
+    /* Sales Operations */
     async getAllSales() {
         const data = await this.loadData();
         return [...data.sales];
     }
 
+    async getSaleById(id) {
+        const sales = await this.getAllSales();
+        return sales.find(sale => sale.id === id) || null;
+    }
+
+    async getSalesByMonth(year, month) {
+        const sales = await this.getAllSales();
+        
+        return sales.filter(sale => {
+            const saleDate = new Date(sale.saleDate);
+            return saleDate.getFullYear() === year && saleDate.getMonth() + 1 === month;
+        });
+    }
+
+    async addSale(saleData) {
+        const data = await this.loadData();
+        const newId = data.products.length > 0 ?
+            Math.max(...data.products.map(p => p.id)) + 1 
+            : 1;
+        
+        const newSale = {
+            id: newId,
+            ...saleData,
+        };
+        
+        data.products.push(newSale);
+        await this.saveData();
+        
+        return newProduct;
+    }
 }
 
 module.exports = new JsonDataService();
