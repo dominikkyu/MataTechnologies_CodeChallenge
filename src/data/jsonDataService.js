@@ -111,10 +111,40 @@ class JsonDataService {
         });
     }
 
+    /* Get sales data with customer and product details included */
+    async getCompleteSalesData(salesData) {
+        if (!salesData || salesData.length === 0) {
+            return [];
+        }
+        
+        const completeSalesData = [];
+        
+        for (const sale of salesData) {
+            const customer = await this.getCustomerById(sale.customerId);
+            const product = await this.getProductById(sale.productId);
+            
+            completeSalesData.push({
+                sale_id: sale.id,
+                sale_date: sale.saleDate,
+                quantity: sale.quantity,
+                total_amount: sale.totalAmount,
+                customer_id: sale.customerId,
+                customer_name: customer ? customer.name : 'Unknown Customer',
+                customer_email: customer ? customer.email : '',
+                product_id: sale.productId,
+                product_name: product ? product.name : 'Unknown Product',
+                unit_price: product ? product.price : 0,
+                product_category: product ? product.category : ''
+            });
+        }
+        
+        return completeSalesData;
+    }
+
     async addSale(saleData) {
         const data = await this.loadData();
-        const newId = data.products.length > 0 ?
-            Math.max(...data.products.map(p => p.id)) + 1 
+        const newId = data.sales.length > 0 ?
+            Math.max(...data.sales.map(p => p.id)) + 1 
             : 1;
         
         const newSale = {
