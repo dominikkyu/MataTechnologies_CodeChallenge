@@ -76,19 +76,20 @@ npm start
 
 ## API Endpoints
 
-`GET /` - Root
-`GET /api/health` - Health check
+- `GET /` - Root
+- `GET /api/health` - Health check
 
 #### Read Endpoints
-`GET /api/customers` - All customers data
-`GET /api/products` - All products data
-`GET /api/sales` - All sales data
-`GET /api/sales/monthly?year=YYYY&month=MM` - Monthly sales report
+- `GET /api/customers` - All customers data
+- `GET /api/products` - All products data
+- `GET /api/sales` - All sales data
+- `GET /api/sales/monthly?year=YYYY&month=MM` - Monthly sales report
 
 #### Create Endpoints
-`POST /api/customers` - Create customer
-`POST /api/products` - Create product
-`POST /api/sales` - Create sale
+
+ - `POST /api/customers` - Create customer
+ - `POST /api/products` - Create product
+ - `POST /api/sales` - Create sale
 
 ## HTTP Status Codes
 -   `200` - Success
