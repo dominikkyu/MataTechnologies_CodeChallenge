@@ -1,0 +1,240 @@
+/* Define HTTP routes and validation schemas */
+
+const salesController = require('../controllers/salesController');
+
+
+const monthlySalesSchema = {
+    schema: {
+        description: 'Get sales data for a specific month',
+        tags: ['sales'],
+        summary: 'Returns which customer bought which products during a particular month',
+        querystring: {
+            type: 'object',
+            required: ['year', 'month'],
+            properties: {
+                year: {
+                    type: 'string',
+                    description: 'Year (4 digits, 1900-2100)',
+                    pattern: '^\\d{4}$',
+                    examples: ['2024']
+                },
+                month: {
+                    type: 'string',
+                    description: 'Month (1-12)',
+                    pattern: '^([1-9]|1[0-2])$',
+                    examples: ['2']
+                }
+            }
+        },
+        response: {
+            200: {
+                description: 'Successful response',
+                type: 'object',
+                properties: {
+                    success: { type: 'boolean' },
+                    timestamp: { type: 'string' },
+                    query: {
+                        type: 'object',
+                        properties: {
+                            year: { type: 'integer' },
+                            month: { type: 'integer' }
+                        }
+                    },
+                    summary: {
+                        type: 'object',
+                        properties: {
+                            year: { type: 'integer' },
+                            month: { type: 'string' },
+                            total_sales: { type: 'integer' },
+                            total_revenue: { type: 'number' },
+                            unique_customers: { type: 'integer' },
+                            unique_products: { type: 'integer' }
+                        }
+                    },
+                    customer_purchases: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                customer_id: { type: 'integer' },
+                                customer_name: { type: 'string' },
+                                customer_email: { type: 'string' },
+                                total_spent: { type: 'number' },
+                                total_items: { type: 'integer' },
+                                purchases: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            product_id: { type: 'integer' },
+                                            product_name: { type: 'string' },
+                                            quantity: { type: 'integer' },
+                                            unit_price: { type: 'number' },
+                                            total_amount: { type: 'number' },
+                                            sale_date: { type: 'string' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    product_sales: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                product_id: { type: 'integer' },
+                                product_name: { type: 'string' },
+                                product_category: { type: 'string' },
+                                total_quantity: { type: 'integer' },
+                                total_revenue: { type: 'number' },
+                                customers: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            customer_id: { type: 'integer' },
+                                            customer_name: { type: 'string' },
+                                            quantity: { type: 'integer' },
+                                            purchase_amount: { type: 'number' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    detailed_sales: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                sale_id: { type: 'integer' },
+                                sale_date: { type: 'string' },
+                                quantity: { type: 'integer' },
+                                total_amount: { type: 'number' },
+                                customer_id: { type: 'integer' },
+                                customer_name: { type: 'string' },
+                                customer_email: { type: 'string' },
+                                product_id: { type: 'integer' },
+                                product_name: { type: 'string' },
+                                unit_price: { type: 'number' },
+                                product_category: { type: 'string' }
+                            }
+                        }
+                    }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' },
+                    example: { type: 'string' },
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            year: { type: 'string' },
+                            month: { type: 'string' }
+                        }
+                    }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' },
+                    details: { type: 'string' }
+                }
+            }
+        }
+    }
+};
+
+const createSaleSchema = {
+    schema: {
+        description: 'Create a new sale record',
+        tags: ['sales'],
+        body: {
+            type: 'object',
+            required: ['customerId', 'productId', 'quantity', 'saleDate'],
+            properties: {
+                customerId: {
+                    type: 'integer',
+                    description: 'Customer ID',
+                    minimum: 1
+                },
+                productId: {
+                    type: 'integer',
+                    description: 'Product ID',
+                    minimum: 1
+                },
+                quantity: {
+                    type: 'integer',
+                    description: 'Quantity purchased',
+                    minimum: 1
+                },
+                saleDate: {
+                    type: 'string',
+                    description: 'Sale date (YYYY-MM-DD)',
+                    pattern: '^\\d{4}-\\d{2}-\\d{2}$'
+                }
+            }
+        },
+        response: {
+            201: {
+                description: 'Sale created successfully',
+                type: 'object',
+                properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                    sale: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'integer' },
+                            customerId: { type: 'integer' },
+                            productId: { type: 'integer' },
+                            quantity: { type: 'integer' },
+                            saleDate: { type: 'string' },
+                            totalAmount: { type: 'number' }
+                        }
+                    },
+                    timestamp: { type: 'string' }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' },
+                    required_fields: {
+                        type: 'array',
+                        items: { type: 'string' }
+                    }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' }
+                }
+            }
+        }
+    }
+};
+
+async function salesRoutes(fastify, options) {
+    fastify.get('/api/sales/monthly', monthlySalesSchema, salesController.getMonthlySales);
+    fastify.get('/api/sales', salesController.getAllSales);
+    fastify.get('/api/customers', salesController.getAllCustomers);
+    fastify.get('/api/products', salesController.getAllProducts);
+
+    fastify.post('/api/sales', createSaleSchema, salesController.createSale);
+}
+
+module.exports = salesRoutes;
