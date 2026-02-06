@@ -23,7 +23,8 @@ async function startServer() {
                     { method: 'GET', path: '/api/sales', description: 'All sales' },
                     { method: 'GET', path: '/api/customers', description: 'All customers' },
                     { method: 'GET', path: '/api/products', description: 'All products' },
-                    { method: 'POST', path: '/api/sales', description: 'Create sale' }
+                    { method: 'POST', path: '/api/sales', description: 'Create sale' },
+                    { method: 'GET', path: '/api/health', description: 'Health check' },
                 ],
                 data_structure: {
                     customers: 'Array of customer objects with id, name, email',
@@ -44,7 +45,8 @@ async function startServer() {
                     'GET /api/sales',
                     'GET /api/customers',
                     'GET /api/products',
-                    'POST /api/sales'
+                    'POST /api/sales',
+                    'GET /api/health'
                 ]
             });
         });
@@ -66,6 +68,7 @@ async function startServer() {
         console.log('   GET /api/customers                          - All customers');
         console.log('   GET /api/products                           - All products');
         console.log('   POST /api/sales                             - Create sale');
+        console.log('   GET /api/health                             - Health check');
         console.log('Data File:');
         console.log(`   ${path.join(__dirname, 'data/data.json')}`);
         
