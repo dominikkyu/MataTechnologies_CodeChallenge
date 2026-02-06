@@ -100,7 +100,7 @@ class SalesController {
             });
         }
         
-        // Validate field types
+        /* Validate field types */
         if (typeof customerId !== 'number' || typeof productId !== 'number' || typeof quantity !== 'number') {
             return reply.status(400).send({
                 error: 'Bad request',
@@ -108,7 +108,7 @@ class SalesController {
             });
         }
         
-        // Validate quantity is positive
+        /* Validate quantity is positive */
         if (quantity <= 0) {
             return reply.status(400).send({
                 error: 'Bad request',
@@ -182,6 +182,35 @@ class SalesController {
             });
         }
     }
+
+    async getHealth(request, reply) {
+        try {
+            const customers = await databaseService.getAllCustomers();
+            const products = await databaseService.getAllProducts();
+            const sales = await databaseService.getAllSales();
+            
+            return reply.send({
+                status: 'healthy',
+                timestamp: new Date().toISOString(),
+                database: {
+                    customers: customers.length,
+                    products: products.length,
+                    sales: sales.length
+                },
+                uptime: process.uptime(),
+                memory: process.memoryUsage()
+            });
+            
+        } catch (error) {
+            request.log.error(error);
+            return reply.status(503).send({
+                status: 'unhealthy',
+                error: 'Database connection failed',
+                message: error.message
+            });
+        }
+    }
+
 }
 
 module.exports = new SalesController();

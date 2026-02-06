@@ -226,6 +226,52 @@ const createSaleSchema = {
             }
         }
     }
+}
+
+const healthCheckSchema = {
+    schema: {
+        description: 'Health check endpoint',
+        tags: ['system'],
+        summary: 'Check if the API and database are healthy',
+        response: {
+            200: {
+                description: 'System is healthy',
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    timestamp: { type: 'string' },
+                    database: {
+                        type: 'object',
+                        properties: {
+                            customers: { type: 'integer' },
+                            products: { type: 'integer' },
+                            sales: { type: 'integer' }
+                        }
+                    },
+                    uptime: { type: 'number' },
+                    memory: {
+                        type: 'object',
+                        properties: {
+                            rss: { type: 'number' },
+                            heapTotal: { type: 'number' },
+                            heapUsed: { type: 'number' },
+                            external: { type: 'number' },
+                            arrayBuffers: { type: 'number' }
+                        }
+                    }
+                }
+            },
+            503: {
+                description: 'System is unhealthy',
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    error: { type: 'string' },
+                    message: { type: 'string' }
+                }
+            }
+        }
+    }
 };
 
 async function salesRoutes(fastify, options) {
@@ -235,6 +281,8 @@ async function salesRoutes(fastify, options) {
     fastify.get('/products', salesController.getAllProducts);
 
     fastify.post('/sales', createSaleSchema, salesController.createSale);
+
+    fastify.get('/health', healthCheckSchema, salesController.getHealth);
 }
 
 module.exports = salesRoutes;
