@@ -229,12 +229,12 @@ const createSaleSchema = {
 };
 
 async function salesRoutes(fastify, options) {
-    fastify.get('/api/sales/monthly', monthlySalesSchema, salesController.getMonthlySales);
-    fastify.get('/api/sales', salesController.getAllSales);
-    fastify.get('/api/customers', salesController.getAllCustomers);
-    fastify.get('/api/products', salesController.getAllProducts);
+    fastify.get('/sales/monthly', monthlySalesSchema, salesController.getMonthlySales);
+    fastify.get('/sales', salesController.getAllSales);
+    fastify.get('/customers', salesController.getAllCustomers);
+    fastify.get('/products', salesController.getAllProducts);
 
-    fastify.post('/api/sales', createSaleSchema, salesController.createSale);
+    fastify.post('/sales', createSaleSchema, salesController.createSale);
 }
 
 module.exports = salesRoutes;
