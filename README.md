@@ -26,6 +26,10 @@ npm install fastify
 ```
 npm start
 ```
+3. After starting the server, run the test script
+```
+node test.js
+```
 ## Project Structure
 ```
 ./
