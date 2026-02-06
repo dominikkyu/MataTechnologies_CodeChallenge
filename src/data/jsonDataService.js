@@ -45,6 +45,11 @@ class JsonDataService {
         return customers.find(customer => customer.id === id) || null;
     }
 
+    async getCustomerByEmail(email) {
+        const customers = await this.getAllCustomers();
+        return customers.find(customer => customer.email === email) || null;
+    }
+
     async createCustomer(customerData) {
         const data = await this.loadData();
 

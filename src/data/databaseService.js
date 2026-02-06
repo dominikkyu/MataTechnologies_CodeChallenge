@@ -14,6 +14,10 @@ class DatabaseService {
         return await jsonDataService.getCustomerById(id);
     }
 
+    async getCustomerByEmail(email) {
+        return await jsonDataService.getCustomerByEmail(email);
+    }
+
     async createCustomer(customerData) {
         return await jsonDataService.createCustomer(customerData);
     }
