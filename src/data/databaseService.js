@@ -60,11 +60,17 @@ class DatabaseService {
         
         if (completeSalesData.length === 0) {
             return {
-                year,
-                month,
-                total_sales: 0,
-                total_revenue: 0,
-                sales: []
+                summary: {
+                    year,
+                    month: month.toString().padStart(2, '0'),
+                    total_sales: 0,
+                    total_revenue: 0,
+                    unique_customers: 0,
+                    unique_products: 0
+                },
+                customer_purchases: [],
+                product_sales: [],
+                detailed_sales: []
             };
         }
         

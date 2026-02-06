@@ -46,14 +46,13 @@ class SalesController {
         }
         
         try {
-            const result = await databaseService.getMonthlySalesSummary(yearNum, monthNum);
+            const result = await databaseService.getMonthlySalesReport(yearNum, monthNum);
             
             return reply.send({
                 ...result,
                 query: {
                     year: yearNum,
                     month: monthNum,
-                    formatted_month: result.summary.month
                 },
                 success: true,
                 timestamp: new Date().toISOString()
@@ -65,6 +64,121 @@ class SalesController {
                 error: 'Internal server error',
                 message: 'Failed to retrieve monthly sales data',
                 details: error.message
+            });
+        }
+    }
+
+    async getAllSales(request, reply) {
+        try {
+            const sales = await databaseService.getAllSales();
+            const completeSalesData = await databaseService.getCompleteSalesData(sales);
+            
+            return reply.send({
+                count: completeSalesData.length,
+                sales: completeSalesData,
+                success: true,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            request.log.error(error);
+            return reply.status(500).send({
+                error: 'Internal server error',
+                message: 'Failed to retrieve sales data'
+            });
+        }
+    }
+    
+    async createSale(request, reply) {
+        const { customerId, productId, quantity, saleDate } = request.body;
+        
+        if (!customerId || !productId || !quantity || !saleDate) {
+            return reply.status(400).send({
+                error: 'Bad request',
+                message: 'Missing required fields: customerId, productId, quantity, and saleDate are all required',
+                required_fields: ['customerId', 'productId', 'quantity', 'saleDate']
+            });
+        }
+        
+        // Validate field types
+        if (typeof customerId !== 'number' || typeof productId !== 'number' || typeof quantity !== 'number') {
+            return reply.status(400).send({
+                error: 'Bad request',
+                message: 'Invalid field types: customerId, productId, and quantity must be numbers'
+            });
+        }
+        
+        // Validate quantity is positive
+        if (quantity <= 0) {
+            return reply.status(400).send({
+                error: 'Bad request',
+                message: 'Invalid quantity: quantity must be greater than 0'
+            });
+        }
+        
+        try {
+            const newSale = await databaseService.createSale(request.body);
+            
+            return reply.status(201).send({
+                message: 'Sale created successfully',
+                sale: newSale,
+                success: true,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            request.log.error(error);
+            
+            if (error.message.includes('not found') || error.message.includes('Missing required')) {
+                return reply.status(400).send({
+                    error: 'Bad request',
+                    message: error.message
+                });
+            }
+            
+            return reply.status(500).send({
+                error: 'Internal server error',
+                message: 'Failed to create sale'
+            });
+        }
+    }
+    
+    async getAllCustomers(request, reply) {
+        try {
+            const customers = await databaseService.getAllCustomers();
+            
+            return reply.send({
+                count: customers.length,
+                customers: customers,
+                success: true,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            request.log.error(error);
+            return reply.status(500).send({
+                error: 'Internal server error',
+                message: 'Failed to retrieve customers'
+            });
+        }
+    }
+    
+    async getAllProducts(request, reply) {
+        try {
+            const products = await databaseService.getAllProducts();
+            
+            return reply.send({
+                count: products.length,
+                products: products,
+                success: true,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            request.log.error(error);
+            return reply.status(500).send({
+                error: 'Internal server error',
+                message: 'Failed to retrieve products'
             });
         }
     }

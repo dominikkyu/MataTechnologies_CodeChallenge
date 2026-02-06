@@ -45,7 +45,7 @@ class JsonDataService {
         return customers.find(customer => customer.id === id) || null;
     }
 
-    async addCustomer(customerData) {
+    async createCustomer(customerData) {
         const data = await this.loadData();
         const newId = data.customers.length > 0 ?
             Math.max(...data.customers.map(c => c.id)) + 1 
@@ -57,7 +57,7 @@ class JsonDataService {
         };
         
         data.customers.push(newCustomer);
-        await this.saveData();
+        await this.saveData(data);
         
         return newCustomer;
     }
@@ -74,7 +74,7 @@ class JsonDataService {
         return products.find(product => product.id === id) || null;
     }
     
-    async addProduct(productData) {
+    async createProduct(productData) {
         const data = await this.loadData();
         const newId = data.products.length > 0 ?
             Math.max(...data.products.map(p => p.id)) + 1 
@@ -86,7 +86,7 @@ class JsonDataService {
         };
         
         data.products.push(newProduct);
-        await this.saveData();
+        await this.saveData(data);
         
         return newProduct;
     }
@@ -141,21 +141,51 @@ class JsonDataService {
         return completeSalesData;
     }
 
-    async addSale(saleData) {
+    async createSale(saleData) {
         const data = await this.loadData();
+
+        /* Check if customer exists */
+        const customer = await this.getCustomerById(saleData.customerId);
+        if (!customer) {
+            throw new Error(`Customer with ID ${saleData.customerId} not found`);
+        }
+
+        /* Check if product exists */
+        const product = await this.getProductById(saleData.productId);
+        if (!product) {
+            throw new Error(`Product with ID ${saleData.productId} not found`);
+        }
+
+        /* Check if saleDate format is YYYY-MM-DD */
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(saleData.saleDate)) {
+            throw new Error('Invalid sale date format. Use YYYY-MM-DD');
+        }
+        
+        /* Check if saleDate is a valid date */
+        const [year, month, day] = saleData.saleDate.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
+            throw new Error('Invalid date');
+        }
+
         const newId = data.sales.length > 0 ?
-            Math.max(...data.sales.map(p => p.id)) + 1 
+            Math.max(...data.sales.map(s => s.id)) + 1 
             : 1;
+
+        /* Calculate total amount */
+        const totalAmount = (product.price || 0) * saleData.quantity;
         
         const newSale = {
             id: newId,
             ...saleData,
+            totalAmount: totalAmount
         };
         
-        data.products.push(newSale);
-        await this.saveData();
+        data.sales.push(newSale);
+        await this.saveData(data); 
         
-        return newProduct;
+        return newSale;
     }
 }
 
