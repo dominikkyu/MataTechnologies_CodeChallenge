@@ -47,6 +47,13 @@ class JsonDataService {
 
     async createCustomer(customerData) {
         const data = await this.loadData();
+
+        /* Check if email already exists */
+        const existingCustomer = await this.getCustomerByEmail(customerData.email);
+        if (existingCustomer) {
+            throw new Error(`Customer with email ${customerData.email} already exists`);
+        }
+
         const newId = data.customers.length > 0 ?
             Math.max(...data.customers.map(c => c.id)) + 1 
             : 1;

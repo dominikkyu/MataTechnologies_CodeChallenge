@@ -19,10 +19,12 @@ async function startServer() {
                 data_source: 'JSON file (src/data/data.json)',
                 all_endpoints: [
                     { method: 'GET', path: '/', description: 'Root' },
-                    { method: 'GET', path: '/api/sales/monthly?year=YYYY&month=MM', description: 'Monthly sales report' },
-                    { method: 'GET', path: '/api/sales', description: 'All sales' },
                     { method: 'GET', path: '/api/customers', description: 'All customers' },
                     { method: 'GET', path: '/api/products', description: 'All products' },
+                    { method: 'GET', path: '/api/sales', description: 'All sales' },
+                    { method: 'GET', path: '/api/sales/monthly?year=YYYY&month=MM', description: 'Monthly sales report' },
+                    { method: 'POST', path: '/api/customers', description: 'Create customer' },
+                    { method: 'POST', path: '/api/products', description: 'Create product' },
                     { method: 'POST', path: '/api/sales', description: 'Create sale' },
                     { method: 'GET', path: '/api/health', description: 'Health check' },
                 ],
@@ -41,10 +43,12 @@ async function startServer() {
                 message: `Route ${request.method}:${request.url} not found`,
                 available_routes: [
                     'GET /',
-                    'GET /api/sales/monthly?year=YYYY&month=MM',
-                    'GET /api/sales',
                     'GET /api/customers',
                     'GET /api/products',
+                    'GET /api/sales',
+                    'GET /api/sales/monthly?year=YYYY&month=MM',
+                    'POST /api/customers',
+                    'POST /api/products',
                     'POST /api/sales',
                     'GET /api/health'
                 ]
@@ -63,10 +67,12 @@ async function startServer() {
         console.log(`Data: ${path.join(__dirname, 'data/data.json')}`);
         console.log('Available Endpoints:');
         console.log('   GET /                                       - Root');
-        console.log('   GET /api/sales/monthly?year=YYYY&month=MM   - Monthly sales report');
-        console.log('   GET /api/sales                              - All sales');
         console.log('   GET /api/customers                          - All customers');
         console.log('   GET /api/products                           - All products');
+        console.log('   GET /api/sales                              - All sales');
+        console.log('   GET /api/sales/monthly?year=YYYY&month=MM   - Monthly sales report');
+        console.log('   POST /api/customers                         - Create customer');
+        console.log('   POST /api/products                          - Create product');
         console.log('   POST /api/sales                             - Create sale');
         console.log('   GET /api/health                             - Health check');
         console.log('Data File:');

@@ -153,6 +153,144 @@ const monthlySalesSchema = {
     }
 };
 
+const createCustomerSchema = {
+    schema: {
+        description: 'Create a new customer',
+        tags: ['customers'],
+        body: {
+            type: 'object',
+            required: ['name', 'email'],
+            properties: {
+                name: {
+                    type: 'string',
+                    description: 'Customer name',
+                    minLength: 2,
+                    maxLength: 100
+                },
+                email: {
+                    type: 'string',
+                    description: 'Customer email',
+                    format: 'email'
+                }
+            }
+        },
+        response: {
+            201: {
+                description: 'Customer created successfully',
+                type: 'object',
+                properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                    customer: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'integer' },
+                            name: { type: 'string' },
+                            email: { type: 'string' }
+                        }
+                    },
+                    timestamp: { type: 'string' }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' },
+                    required_fields: {
+                        type: 'array',
+                        items: { type: 'string' }
+                    }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' }
+                }
+            }
+        }
+    }
+};
+
+const createProductSchema = {
+    schema: {
+        description: 'Create a new product',
+        tags: ['products'],
+        body: {
+            type: 'object',
+            required: ['name', 'price'],
+            properties: {
+                name: {
+                    type: 'string',
+                    description: 'Product name',
+                    minLength: 2,
+                    maxLength: 100
+                },
+                price: {
+                    type: 'number',
+                    description: 'Product price',
+                    minimum: 0.01
+                },
+                category: {
+                    type: 'string',
+                    description: 'Product category',
+                    maxLength: 50
+                },
+                description: {
+                    type: 'string',
+                    description: 'Product description',
+                    maxLength: 500
+                }
+            }
+        },
+        response: {
+            201: {
+                description: 'Product created successfully',
+                type: 'object',
+                properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                    product: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'integer' },
+                            name: { type: 'string' },
+                            price: { type: 'number' },
+                            category: { type: 'string' },
+                            description: { type: 'string' }
+                        }
+                    },
+                    timestamp: { type: 'string' }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' },
+                    required_fields: {
+                        type: 'array',
+                        items: { type: 'string' }
+                    }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' }
+                }
+            }
+        }
+    }
+};
+
 const createSaleSchema = {
     schema: {
         description: 'Create a new sale record',
@@ -275,11 +413,13 @@ const healthCheckSchema = {
 };
 
 async function salesRoutes(fastify, options) {
-    fastify.get('/sales/monthly', monthlySalesSchema, salesController.getMonthlySales);
-    fastify.get('/sales', salesController.getAllSales);
     fastify.get('/customers', salesController.getAllCustomers);
     fastify.get('/products', salesController.getAllProducts);
+    fastify.get('/sales', salesController.getAllSales);
+    fastify.get('/sales/monthly', monthlySalesSchema, salesController.getMonthlySales);
 
+    fastify.post('/customers', createCustomerSchema, salesController.createCustomer);
+    fastify.post('/products', createProductSchema, salesController.createProduct);
     fastify.post('/sales', createSaleSchema, salesController.createSale);
 
     fastify.get('/health', healthCheckSchema, salesController.getHealth);

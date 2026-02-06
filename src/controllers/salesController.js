@@ -88,6 +88,109 @@ class SalesController {
             });
         }
     }
+
+    async createCustomer(request, reply) {
+        const { name, email } = request.body;
+        
+        if (!name || !email) {
+            return reply.status(400).send({
+                error: 'Bad request',
+                message: 'Missing required fields: name and email are required',
+                required_fields: ['name', 'email']
+            });
+        }
+        
+        /* Validate email format */
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return reply.status(400).send({
+                error: 'Bad request',
+                message: 'Invalid email format'
+            });
+        }
+        
+        try {
+            /* Check if email already exists */
+            const existingCustomer = await databaseService.getCustomerByEmail(email);
+            
+            if (existingCustomer) {
+                return reply.status(400).send({
+                    error: 'Bad request',
+                    message: `Customer with email ${email} already exists`
+                });
+            }
+
+            const newCustomer = await databaseService.createCustomer(request.body);
+            
+            return reply.status(201).send({
+                message: 'Customer created successfully',
+                customer: newCustomer,
+                success: true,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            request.log.error(error);
+            
+            if (error.message.includes('duplicate') || error.message.includes('already exists')) {
+                return reply.status(400).send({
+                    error: 'Bad request',
+                    message: error.message
+                });
+            }
+            
+            return reply.status(500).send({
+                error: 'Internal server error',
+                message: 'Failed to create customer'
+            });
+        }
+    }
+    
+    async createProduct(request, reply) {
+        const { name, price, category } = request.body;
+        
+        if (!name || price === undefined || !category) {
+            return reply.status(400).send({
+                error: 'Bad request',
+                message: 'Missing required fields: name, price, and category are required',
+                required_fields: ['name', 'price', 'category']
+            });
+        }
+        
+        /* Validate price is positive number */
+        if (typeof price !== 'number' || price <= 0) {
+            return reply.status(400).send({
+                error: 'Bad request',
+                message: 'Price must be a positive number'
+            });
+        }
+        
+        try {
+            const newProduct = await databaseService.createProduct(request.body);
+            
+            return reply.status(201).send({
+                message: 'Product created successfully',
+                product: newProduct,
+                success: true,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            request.log.error(error);
+            
+            if (error.message.includes('duplicate') || error.message.includes('already exists')) {
+                return reply.status(400).send({
+                    error: 'Bad request',
+                    message: error.message
+                });
+            }
+            
+            return reply.status(500).send({
+                error: 'Internal server error',
+                message: 'Failed to create product'
+            });
+        }
+    }
     
     async createSale(request, reply) {
         const { customerId, productId, quantity, saleDate } = request.body;
